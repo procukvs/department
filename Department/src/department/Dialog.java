@@ -93,7 +93,7 @@ public class Dialog {
 				if (c != 'd') {
 					while ((i < token.length-1) && good) {
 						String st = token[i];
-						System.out.println(".." + i + ".." + st);
+						//System.out.println(".." + i + ".." + st);
 						if (st.startsWith("sur:")) surname = st.substring(4);
 						else if (st.startsWith("nam:")) name = st.substring(4);
 						else if (st.startsWith("tel:")) telefon = st.substring(4);
