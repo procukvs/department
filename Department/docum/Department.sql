@@ -23,13 +23,15 @@ create table Discipline
 );
 
 drop table if exists Direction;
-create table Direction
+drop table if exists Directions;
+create table Directions
 (idDir integer not null primary key,
  Direction varchar(15) not null
 ); 
 
 drop table if exists Scientific;
-create table Scientific
+drop table if exists Scientifics;
+create table Scientifics
 (idSci integer not null primary key,
  Scientific varchar(15) not null
 );
@@ -39,8 +41,6 @@ create table Person
 (idPer integer not null primary key,
  Surname varchar(15) not null,
  Name varchar(15) not null,
- Father varchar(15) not null,
- Address varchar(35),
  Telefon varchar(12),
  Sex char(1) not null 
 ); 

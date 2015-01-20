@@ -1,0 +1,79 @@
+-----model Department---------
+state Department of
+  Rooms      : map nat to Troom                      --Аудиторії
+  Staff      : map IdPer to Person                   --Персонал
+  Students   : map Flow to (seq1 of set of IdPer)    --Студенти 
+  Curriculum : map IdDisc to Discipline              --Учбові плани 
+  Assignment : map Subject to (map Executor to nat)  --Навантаження
+  Schedule   : map Place to Studies                  --Розклад
+  IndividWork: map IdPer to IdPer                    --Керівництво курс/дипл. 
+  Chairs     : map IdCh to Chair                     --Кафедри
+  Print      : map IdPrn to Printing                 --Друковані роботи
+  Scientifics: set of Scientific                     --Наукові напрямки ф-ту
+  Directions : set of Direction                      --Учбові напрямки ф-ту
+init DB ==
+  DB = mk_Department({|->}, {|->}, {|->}, {|->}, {|->}, {|->}, {|->} , 
+                     {|->} , {|->}, {}, {})
+end
+
+-------------------------------------------------- 
+types
+Chair      :: Title head:[IdPer]                    --Кафедра: назва, завідувач    
+              teac:map IdPer to Teacher             --Кафедра: викладачі
+              grad:map IdPer to Graduate;           --Кафедра: аспіранти 
+IdCh       :: nat;                                  --Номер кафедри 
+Teacher    :: Scientific Direction Post [ScienceD]; --Викладач
+Graduate   :: Scientific years:nat;                  --Аспірант                                         
+Scientific  = String;             --Науковий напрямок:  "Programming", "Algorithm"... 
+            --     
+Post        = <Professor> | <Assistant> | <AssocProfes>; --Посада   
+ScienceD    = <Candidate> | <Doctor>;               --Вчена ступінь 
+
+Person     :: surname:String name:String tel:String sex:(<M>|<W>); --Фізична Особа       
+IdPer      :: nat;                                  -- Номер фізичної особи
+
+Flow       :: Speciality years:nat term:(<Aut>|<Spr>|<Sum>); --Потік (спеціальність+рік+семестр)
+Speciality  = <ProgInj> | <AppMath>;                --Спеціальність
+Title       = String;                               --Назва
+IdDisc     :: nat;                                  --Номер дисципліни
+Discipline :: Title Flow Direction hours:map Tlean to nat;  --Дисципліна
+Direction   = String;        --Учбовий напрямок: "Programming", "Algorithm", "DataBase"  
+
+Subject    :: IdDisc Tlean;                         --Предмет
+Group      :: Flow num:[nat];                       --Група  
+Executor    = IdCh | IdPer;                         --Виконавець
+Tlean       = <Lec> | <Sem> | <Com> | <Cnt> | <Ind>;--Тип годин
+Place      :: num:nat Day pair:nat;                 --Місце
+Day         = <Mon> | <Tue> | <Wed> | <Thu> | <Fri>;--День неділі 
+Studies    :: Subject group:[nat] teacher:IdPer;    --Заняття 
+Troom      :: type:(<Sem> | <Com>) cnt:nat;         --Характеристика аудиторії      
+
+IdPrn      :: nat;                                  --Номер друкованої роботи
+Printing   :: auto:seq of IdPer tPrint Scientific year:nat tPrint;    --Друков.робота
+tPrint      = <Theses> | <Manual> | <Monography> | <Article>;--Тип друк.роботи 
+String      = seq of char;
+
+ -----DB------------
+Command     = CmPerson | CmLead | AddFlow | AddGroup | AddStudent | 
+              DelStudent | AddDiscip | EditDiscip | DelDiscip |
+              AddChair | EditChair | AddTeacher | EditTeacher | DelTeacher;
+CmPerson    = AddPerson | EditPerson | DelPerson; 
+AddPerson  :: Person;       -- 
+EditPerson :: IdPer Person;
+DelPerson  :: IdPer;
+AddFlow    :: Flow;         -- 
+AddGroup   :: Flow [nat];   -- 
+AddStudent :: Flow [nat] IdPer;         -- 
+DelStudent :: IdPer;
+AddDiscip  :: IdDisc Discipline;
+EditDiscip :: IdDisc Discipline;
+DelDiscip  :: IdDisc;
+AddChair   :: IdCh Chair;
+EditChair  :: IdCh Title [IdPer];
+AddTeacher :: IdPer IdCh Teacher;
+EditTeacher:: IdPer IdCh Teacher;
+DelTeacher :: IdPer;
+CmLead     :: (<Sci> | <Dir>) String; 
+
+operations
+
