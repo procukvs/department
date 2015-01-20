@@ -72,13 +72,45 @@ public class Dialog {
 	private Command analysPerson(String [] token){
 		Command cm;
 		String surname, name, telefon, sex;
-		int id;
+		String err = "pa {field:text} .. pe id {field:text} .. pd id ..";
+		int id, i;
+		boolean good;
+		char c = 'f';
 		surname = "Ivanov"; name = "Ivan"; telefon = "89789"; sex = "M";
-		id = 0;
-        if ((token.length > 2) && (token[0].length()>1)) {
-        	cm = new CmPerson(surname,name,telefon,sex);
-        }
-        else cm = new CmExit("pa {text} .. pe id {field:text} .. pd id .."); // +token.length );	   
+		id = 0; 
+		i = 1;
+		good = (token.length > 2) && (token[0].length()>1);
+		if (good){
+			c = token[0].charAt(1);
+			good = ((c == 'a') || (c == 'd') || (c == 'e'));  
+			if (good) {
+				if ((c == 'd') || (c == 'e'))	{
+					i = 2;	
+					good = token[1].matches("[0-9]*");
+					if (good) id = Integer.parseInt(token[1]); 
+					else err = "pe/pd ... id = number .. ";
+	        	}
+				if (c != 'd') {
+					while ((i < token.length-1) && good) {
+						String st = token[i];
+						System.out.println(".." + i + ".." + st);
+						if (st.startsWith("sur:")) surname = st.substring(4);
+						else if (st.startsWith("nam:")) name = st.substring(4);
+						else if (st.startsWith("tel:")) telefon = st.substring(4);
+						else if (st.startsWith("sex:")) sex = st.substring(4,5);
+						else {good = false; 
+							err = "pa/pe ... field = sur/nam/tel/sex ..";
+						}
+						i++;
+					}
+				}
+			}
+		}
+		if (good) {
+			if (c == 'd') cm = new CmPerson(id);
+			else if (c == 'a') cm = new CmPerson(id,surname,name,telefon,sex);
+			else cm = new CmPerson(id, surname,name,telefon,sex);   
+       	} else cm = new CmExit(err);
         return cm;
 	}
 	
