@@ -16,7 +16,7 @@ public class Command {
 	public boolean isStop() {
 		return isStop;
 	}
-	public boolean iswf(){
+	public boolean iswf(DataBase db){
 		return true;
 	}
 	public void eval(DataBase db){

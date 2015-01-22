@@ -6,6 +6,9 @@ public class CmPerson extends Command {
 	CmPerson(int id){
 		this.type = "d"; this.id = id;
 	}
+	CmPerson(String surname){
+		this.type = "s"; this.surname = surname;
+	}
 	CmPerson(String surname, String name, String telefon, String sex) {
 	    this.type = "a";
 	    this.surname = surname; this.name = name;
@@ -19,7 +22,7 @@ public class CmPerson extends Command {
 	public String toString(){
 		String str;
 		str = "p"+type;
-		if (type != "n") str = str + " id:" + id;
+		if (type != "a") str = str + " id:" + id;
 		if (type != "d") {
 	       if (!surname.equals("")) str = str + " surname:" + surname; 
 	       if (!name.equals("")) str = str + " name:" + name; 
@@ -28,7 +31,70 @@ public class CmPerson extends Command {
 		}
 		return str;
 	}
+	public boolean iswf(DataBase db){
+		boolean r = true; 
+		String sql;
+		int cnt = 0;
+		//this.setMsg("Command t" + type +" not realized!");
+		if ((type.charAt(0) == 'd') || (type.charAt(0) == 'e')){
+			sql = "select count(*) from Person where idPer = " + id ;
+			cnt = db.cntRows(sql);
+			if (cnt == 0) {
+				  this.setMsg("Person with number " + id +" not found !");	
+				  r = false;
+			}
+		}
+		return r;
+	}
 	public void eval(DataBase db){
-		this.setMsg(this.toString());
+		String sql, res;
+		int id;
+		switch (type.charAt(0)) {
+			case 'd': sql = "delete from Person where idPer = " + this.id;
+					  System.out.println(sql);
+      	              if (db.execSQL(sql)) this.setMsg("Delete person with number " + this.id);	
+				     /*if (cnt == 0) {
+					  this.setMsg("Person wih number " + id +" not found !");	
+					  r = false;
+				  }; */ break;
+			case 'a': sql = "select max(idPer) from Person";
+					  id = db.newId(sql);
+			          if (id > 0) {
+			        	  //sql = "insert into Person values(" + id +",'" + surname + "','" + name + 
+			              //			  "','" + telefon + "','" + sex + "')";
+			        	  sql = "insert into Person values(" + id + fmSql1() + ")";
+			        	  System.out.println(sql);
+			        	  if (db.execSQL(sql)) this.setMsg("Add new person: " + sql);
+			          }	  
+				      break;
+			case 'e': sql = "update Person set " + fmSql2() + " where idPer = " + this.id ;
+      	              System.out.println(sql);
+      	              if (db.execSQL(sql)) this.setMsg("Edit person with number " + this.id + " : " + sql);
+				      break;
+			case 's': sql = "select idPer, surname, name, telefon, sex from Person " ; // 
+			          if (!surname.equals("*")) sql = sql + " where surname like '%" + surname + "%'";
+			          System.out.println(sql);
+			          res = db.show("Person", sql);
+			          this.setMsg(res);
+			          break;
+			default:  this.setMsg("Command p" + type +" not correct!");
+	    }  
+		//this.setMsg(this.toString());
+	}
+	private String fmSql1(){
+		String str = "";
+		if (!surname.equals("")) str = str + ",'" + surname + "'";  else str = str + ",null";
+	    if (!name.equals("")) str = str + ",'" + name + "'"; else str = str + ",null";
+	    if (!telefon.equals("")) str = str + ",'" + telefon + "'";  else str = str + ",null";
+	    if (!sex.equals("")) str = str + ",'" + sex + "'";  else str = str + ",null";
+	    return str;
+	}
+	private String fmSql2(){
+		String str = "";
+		if (!surname.equals("")) str = str + ", surname = '" + surname + "'";  
+	    if (!name.equals("")) str = str + ", name = '" + name + "'"; 
+	    if (!telefon.equals("")) str = str + ",telefon = '" + telefon + "'";  
+	    if (!sex.equals("")) str = str + ", sex = '" + sex + "'";  
+	    return str.substring(1);
 	}
 }

@@ -62,12 +62,41 @@ public class DataBase {
 	    		return -1;
 	    	}
     }
-    public void execSQL(String sql){
+    // формує новий номер для певної таблиці оператором sql -- select max(idPer) from Person ...
+    public int newId (String sql){
+    	try{ int cnt = 0;
+    		 s.execute(sql);
+             rs = s.getResultSet();
+             if((rs!=null) && (rs.next()))cnt = rs.getInt(1);
+             return cnt+1;
+    	}catch (Exception e){
+    		System.out.println(e.getMessage() + "\n" + sql);
+    		return 0;
+    	}
+    }
+    public boolean execSQL(String sql){
     	try{ 
     		s.execute(sql);
+    		return true;
         } catch (Exception e){
         	System.out.println(e.getMessage());
+        	return false;
         }	
+    }
+    public String show(String tbl, String sql){
+    	String str = "";
+    	try{ 
+		 	s.execute(sql);
+		 	rs = s.getResultSet();
+        	while((rs!=null) && (rs.next())){
+        		if (tbl.equals("Person"))
+        			str = str + "\n" + rs.getInt(1) + "," + rs.getString(2);
+        		else str = str + "\n" + rs.getInt(1);
+        	}
+        }catch (Exception e){
+		   System.out.println(e.getMessage() + "\n" + sql);
+        }
+    	return str.substring(1);
     }
 
 }

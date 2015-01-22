@@ -17,10 +17,11 @@ public class Department {
 			   cmd = cycle.inputCommand();
 			   go = !cmd.isStop(); 
 			   if (go){
-				   if (cmd.iswf()) {
+				   if (cmd.iswf(db)) {
 					   cmd.eval(db);
-					   System.out.println(cmd.getMsg());
-				   }
+				   };
+				   //System.out.println("...");
+				   System.out.println(cmd.getMsg());
 			   }
 
      	   }

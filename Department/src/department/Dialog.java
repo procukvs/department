@@ -72,17 +72,16 @@ public class Dialog {
 	private Command analysPerson(String [] token){
 		Command cm;
 		String surname, name, telefon, sex;
-		String err = "pa {field:text} .. pe id {field:text} .. pd id ..";
+		String err = "pa {field:text} .. pe id {field:text} .. pd id .. ps text ..";
 		int id, i;
 		boolean good;
 		char c = 'f';
-		surname = "Ivanov"; name = "Ivan"; telefon = "89789"; sex = "M";
-		id = 0; 
-		i = 1;
+		surname = ""; name = ""; telefon = ""; sex = "";
+		id = 0; i = 1;
 		good = (token.length > 2) && (token[0].length()>1);
 		if (good){
 			c = token[0].charAt(1);
-			good = ((c == 'a') || (c == 'd') || (c == 'e'));  
+			good = ((c == 'a') || (c == 'd') || (c == 'e') || (c == 's'));  
 			if (good) {
 				if ((c == 'd') || (c == 'e'))	{
 					i = 2;	
@@ -90,7 +89,7 @@ public class Dialog {
 					if (good) id = Integer.parseInt(token[1]); 
 					else err = "pe/pd ... id = number .. ";
 	        	}
-				if (c != 'd') {
+				if ((c == 'a') || (c == 'e')) {
 					while ((i < token.length-1) && good) {
 						String st = token[i];
 						//System.out.println(".." + i + ".." + st);
@@ -104,12 +103,14 @@ public class Dialog {
 						i++;
 					}
 				}
-			}
+				if (c == 's') surname = token[1];
+ 			}
 		}
 		if (good) {
 			if (c == 'd') cm = new CmPerson(id);
-			else if (c == 'a') cm = new CmPerson(id,surname,name,telefon,sex);
-			else cm = new CmPerson(id, surname,name,telefon,sex);   
+			else if (c == 'a') cm = new CmPerson(surname,name,telefon,sex);
+			else if (c == 'e') cm = new CmPerson(id, surname,name,telefon,sex); 
+			else cm = new CmPerson(surname);
        	} else cm = new CmExit(err);
         return cm;
 	}
