@@ -21,7 +21,9 @@ public class DataBase {
 	     }
 		catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+            System.out.println("ERROR: Could not form DataBase .");
+			System.out.println(">>> " + ex.getMessage());
         } 	
 	}
 	public boolean connectionDb(String nmDb){
@@ -43,7 +45,8 @@ public class DataBase {
 		        conn.close();	
 	        } catch (SQLException e) {
 				System.out.println("ERROR: Could not disconnect.");
-				e.printStackTrace();
+				System.out.println(">>> " + e.getMessage());
+				//e.printStackTrace();
 		    }  
 	}
 	// sql - âèáèğàº ç ïåâíî¿ òàáëèö³ ïåâíó ê³ëüê³ñòü åëåìåíò³â
@@ -58,7 +61,8 @@ public class DataBase {
 	             if((rs!=null) && (rs.next()))cnt = rs.getInt(1);
 	             return cnt;
 	    	}catch (Exception e){
-	    		System.out.println(e.getMessage() + "\n" + sql);
+	    		System.out.println("ERROR: cntRow :" + sql);
+	    		System.out.println(">>> " + e.getMessage());
 	    		return -1;
 	    	}
     }
@@ -70,8 +74,9 @@ public class DataBase {
              if((rs!=null) && (rs.next()))cnt = rs.getInt(1);
              return cnt+1;
     	}catch (Exception e){
-    		System.out.println(e.getMessage() + "\n" + sql);
-    		return 0;
+    		System.out.println("ERROR: newId :" + sql);
+    		System.out.println(">>> " + e.getMessage());
+      		return -1;
     	}
     }
     public boolean execSQL(String sql){
@@ -79,7 +84,8 @@ public class DataBase {
     		s.execute(sql);
     		return true;
         } catch (Exception e){
-        	System.out.println(e.getMessage());
+        	System.out.println("ERROR: execSQL :" + sql);
+    		System.out.println(">>> " + e.getMessage());
         	return false;
         }	
     }
@@ -89,14 +95,45 @@ public class DataBase {
 		 	s.execute(sql);
 		 	rs = s.getResultSet();
         	while((rs!=null) && (rs.next())){
+        		//System.out.println(">>> " + rs.next());
+        		if (!str.equals("")) str = str + "\n";
         		if (tbl.equals("Person"))
-        			str = str + "\n" + rs.getInt(1) + "," + rs.getString(2);
-        		else str = str + "\n" + rs.getInt(1);
+        			str = str  + 
+        		           rs.getInt(1) + " sur:" + rs.getString(2) + " nam:" + rs.getString(3)
+        		                        + " tel:" + rs.getString(4) + " sex:" + rs.getString(5);
+        		else if (tbl.equals("Directions") || tbl.equals("Scientifics"))
+        			str = str  +  rs.getInt(1) + "  " + rs.getString(2);
+          		else str = str  + rs.getInt(1);
         	}
         }catch (Exception e){
-		   System.out.println(e.getMessage() + "\n" + sql);
+          	System.out.println("ERROR: show :" + tbl + ".." + sql);
+        	System.out.println(">>> " + e.getMessage());
         }
-    	return str.substring(1);
+        return str;
+     }
+    // ïåğåâ³ğÿº ùî â òàáëèö³ tbl º åëåìåíò ç íîìåğîì id 
+    public boolean isInDb(String tbl, int id){
+	    	try{ String sql = ""; //
+	    	     if (tbl.equals("Person") || tbl.equals("Teacher") || 
+	    	    	 tbl.equals("Graduate") || tbl.equals("Student")	 )
+	    	    	 sql = "select * from "  + tbl + " where idPer = " + id;
+	    	     else if (tbl.equals("Teacher"))
+	    	    	 sql = "select * from "  + tbl + " where idPer = " + id;
+	    	     if (sql.equals("")) {
+	    	    	 System.out.println("ERROR: isInDb : not realize for " + tbl);
+	    	    	 return false;
+	    	     }
+	             s.execute(sql);
+	             rs = s.getResultSet();
+	             //if ((rs != null)) {
+	             //  if (rs.next())cnt = rs.getInt(1);
+	            // }  
+	             return ((rs!=null) && (rs.next()));
+	       	}catch (Exception e){
+	    		System.out.println("ERROR: isInDb :" + tbl);
+	    		System.out.println(">>> " + e.getMessage());
+	    		return false;
+	    	}
     }
 
 }

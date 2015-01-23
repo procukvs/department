@@ -62,11 +62,15 @@ public class Dialog {
 		String dir;
 		//System.out.println(token.length);
         if ((token.length > 2) && (token[0].length()>1)) {
-        	if (token[0].charAt(1)=='s') dir = "Scientific";
-        	else dir = "Direction";
-        	cm = new CmLead(dir,token[1]);
+    		switch (token[0].charAt(1)) {
+				case 's': cm = new CmLead("Scientific",token[1]); break;
+				case 'd': cm = new CmLead("Direction",token[1]); break;
+				case 'v': cm = new CmLead("Show",token[1]); break;
+				default : cm = new CmExit("ls/ld text .. lv d/s");
+    		}    	
         }
-        else cm = new CmExit("ls/ld text .."); // +token.length );	   
+        else cm = new CmExit("ls/ld text .. lv d/s");
+       // System.out.println(">>> " + cm.toString());
         return cm;
 	}
 	private Command analysPerson(String [] token){
@@ -75,7 +79,7 @@ public class Dialog {
 		String err = "pa {field:text} .. pe id {field:text} .. pd id .. ps text ..";
 		int id, i;
 		boolean good;
-		char c = 'f';
+		char c = 's';
 		surname = ""; name = ""; telefon = ""; sex = "";
 		id = 0; i = 1;
 		good = (token.length > 2) && (token[0].length()>1);
@@ -106,6 +110,7 @@ public class Dialog {
 				if (c == 's') surname = token[1];
  			}
 		}
+		if (c == 's') good = true;
 		if (good) {
 			if (c == 'd') cm = new CmPerson(id);
 			else if (c == 'a') cm = new CmPerson(surname,name,telefon,sex);
