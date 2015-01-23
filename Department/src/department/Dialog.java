@@ -41,6 +41,7 @@ public class Dialog {
 			for (int i=0;i<st;i++) token[i] = cmst.nextToken();
 			if (!token[0].equals("ex"))  
 				switch (token[0].charAt(0)) {
+					case 'f': cm = analysFlow(token); break;
 					case 'l': cm = analysLead(token); break;
 					case 'e': cm = new CmExit(); break;
 					case 'p': cm = analysPerson(token); break;
@@ -119,5 +120,51 @@ public class Dialog {
        	} else cm = new CmExit(err);
         return cm;
 	}
-	
+
+	private Command analysFlow(String [] token){
+		Command cm;
+		String spec, term;
+		int year;
+		String err = "fa {field:text} .. fe id {field:text} ..  fs ..";
+		int id, i;
+		boolean good;
+		char c = 's';
+		spec = ""; term = ""; year = 0;
+		id = 0; i = 1;
+		good = (token.length > 2) && (token[0].length()>1);
+		if (good){
+			c = token[0].charAt(1);
+			good = ((c == 'a') || (c == 'e'));  
+			if (good) {
+				if (c == 'e')	{
+					i = 2;	
+					good = token[1].matches("[0-9]*");
+					if (good) id = Integer.parseInt(token[1]); 
+					else err = "fe ... id = number .. ";
+	        	}
+				while ((i < token.length-1) && good) {
+					String st = token[i];
+					//System.out.println(".." + i + ".." + st);
+					if (st.startsWith("spe:")) spec = st.substring(4);
+					else if (st.startsWith("yea:")) year = Integer.parseInt(st.substring(4));
+					else if (st.startsWith("ter:")) {
+						term = st.substring(4);
+						good = term.equals("Aut") || term.equals("Spr") || term.equals("Sum");
+						if (!good) err = "fa/fe ... ter = Aut/Spr/Sum ..";
+					}
+					else {good = false; 
+						err = "fa/fe ... field = spe/yea/ter ..";
+					}
+					i++;
+				}
+			}
+		}
+		if (c == 's') good = true;
+		if (good) {
+			if (c == 'a') cm = new CmFlow(spec,year,term);
+			else if (c == 'e') cm = new CmFlow(id, spec,year,term); 
+			else cm = new CmFlow();
+       	} else cm = new CmExit(err);
+        return cm;
+	}
 }

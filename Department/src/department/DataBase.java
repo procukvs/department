@@ -103,6 +103,9 @@ public class DataBase {
         		                        + " tel:" + rs.getString(4) + " sex:" + rs.getString(5);
         		else if (tbl.equals("Directions") || tbl.equals("Scientifics"))
         			str = str  +  rs.getInt(1) + "  " + rs.getString(2);
+        		else if (tbl.equals("Flow"))
+        			str = str  +  rs.getInt(1) + " spe:" + rs.getString(2) 
+        			           + " yea:" + rs.getInt(3) + " ter:" + rs.getString(4)  ;
           		else str = str  + rs.getInt(1);
         	}
         }catch (Exception e){
@@ -117,8 +120,8 @@ public class DataBase {
 	    	     if (tbl.equals("Person") || tbl.equals("Teacher") || 
 	    	    	 tbl.equals("Graduate") || tbl.equals("Student")	 )
 	    	    	 sql = "select * from "  + tbl + " where idPer = " + id;
-	    	     else if (tbl.equals("Teacher"))
-	    	    	 sql = "select * from "  + tbl + " where idPer = " + id;
+	    	     else if (tbl.equals("Flow"))
+	    	    	 sql = "select * from "  + tbl + " where idFl = " + id;
 	    	     if (sql.equals("")) {
 	    	    	 System.out.println("ERROR: isInDb : not realize for " + tbl);
 	    	    	 return false;
