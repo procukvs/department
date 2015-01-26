@@ -23,7 +23,7 @@ Chair      :: Title head:[IdPer]                    --Кафедра: назва, завідувач
               grad:map IdPer to Graduate;           --Кафедра: аспіранти 
 IdCh       :: nat;                                  --Номер кафедри 
 Teacher    :: Scientific Direction Post [ScienceD]; --Викладач
-Graduate   :: Scientific years:nat;                  --Аспірант                                         
+Graduate   :: Scientific lead:IdPer years:nat;      --Аспірант                                         
 Scientific  = String;             --Науковий напрямок:  "Programming", "Algorithm"... 
             --     
 Post        = <Professor> | <Assistant> | <AssocProfes>; --Посада   
@@ -74,6 +74,44 @@ AddTeacher :: IdPer IdCh Teacher;
 EditTeacher:: IdPer IdCh Teacher;
 DelTeacher :: IdPer;
 CmLead     :: (<Sci> | <Dir>) String; 
+
+functions
+allManChairs : (<t> | <g>) * map IdCh to Chair -> set of IdPer
+allManChairs(t, chm) ==
+  if chm <> {|->} then
+    let ch in set dom chm                     in
+    let mk_Chair(-,-,tm,gm) = chm(ch),
+        ps = if t=<t> then dom tm else dom gm in
+    ps union allManChairs(t, {ch} <-: chm)      
+  else {};  
+
+iswfChairs : map IdCh to Chair * set of IdPer 
+                     * set of Scientific * set of Direction -> bool
+iswfChairs(chm, ps, ss, ds) ==
+  forall ch in set dom chm &
+    (let ts = allManChairs(<t>, {ch} <-: chm),
+         gs = allManChairs(<g>, {ch} <-: chm) in 
+     iswfChair(chm(ch), ps, ts,gs,ss,ds));       
+
+iswfChair : Chair * set of IdPer * set of IdPer * set of IdPer
+                     * set of Scientific * set of Direction -> bool
+iswfChair(mk_Chair(-,h,tm,gm), ps, ts, gs, ss, ds) ==
+  let chts = dom tm   in 
+  ((h = nil) or (h in set chts)) and
+  forall ip in set dom tm & iswfTeacher(tm(ip),ss,ds) and
+    ((dom tm) subset ps) and ((dom tm) inter ts = {}) and
+  forall ip in set dom gm & iswfGraduate(gm(ip),ss, chts) and   
+    ((dom gm) subset ps) and ((dom gm) inter gs = {}) ;             
+
+iswfTeacher : Teacher * set of Scientific * set of Direction -> bool
+iswfTeacher(mk_Teacher(sci, dir, -,-), ss, ds) ==
+  (sci in set ss) and (dir in set ds);  
+
+iswfGraduate : Graduate  * set of Scientific * set of IdPer -> bool
+iswfGraduate(mk_Graduate(sci, ld, -), ss, ts) ==
+  (sci in set ss) and (ld in set ts);
+
+
 
 operations
 
