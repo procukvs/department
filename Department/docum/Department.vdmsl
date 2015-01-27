@@ -36,7 +36,7 @@ Flow       :: Speciality years:nat term:(<Aut>|<Spr>|<Sum>); --Потік (спеціальні
 Speciality  = <ProgInj> | <AppMath>;                --Спеціальність
 Title       = String;                               --Назва
 IdDisc     :: nat;                                  --Номер дисципліни
-Discipline :: Title Flow Direction hours:map Tlean to nat;  --Дисципліна
+Discipline :: Title fl:Flow dir:Direction hours:map Tlean to nat;  --Дисципліна
 Direction   = String;        --Учбовий напрямок: "Programming", "Algorithm", "DataBase"  
 
 Subject    :: IdDisc Tlean;                         --Предмет
@@ -49,7 +49,7 @@ Studies    :: Subject group:[nat] teacher:IdPer;    --Заняття
 Troom      :: type:(<Sem> | <Com>) cnt:nat;         --Характеристика аудиторії      
 
 IdPrn      :: nat;                                  --Номер друкованої роботи
-Printing   :: auto:seq of IdPer tPrint Scientific year:nat tPrint;    --Друков.робота
+Printing   :: auto:seq of IdPer isAdd:bool tPrint Scientific year:nat tPrint;    --Друков.робота
 tPrint      = <Theses> | <Manual> | <Monography> | <Article>;--Тип друк.роботи 
 String      = seq of char;
 
@@ -72,10 +72,18 @@ AddChair   :: IdCh Chair;
 EditChair  :: IdCh Title [IdPer];
 AddTeacher :: IdPer IdCh Teacher;
 EditTeacher:: IdPer IdCh Teacher;
-DelTeacher :: IdPer;
+DelTeacher :: IdPer IdCh;
 CmLead     :: (<Sci> | <Dir>) String; 
 
 functions
+allStudents : map Flow to (seq1 of set of IdPer) -> set of IdPer
+allStudents(fsm) ==
+ dunion { dunion elems fsm(f) | f in set dom fsm};
+ 
+allFlows : map IdDisc to Discipline -> set of Flow
+allFlows(idm) ==
+  {(idm(id)).fl | id in set dom idm};
+
 allManChairs : (<t> | <g>) * map IdCh to Chair -> set of IdPer
 allManChairs(t, chm) ==
   if chm <> {|->} then
@@ -84,6 +92,22 @@ allManChairs(t, chm) ==
         ps = if t=<t> then dom tm else dom gm in
     ps union allManChairs(t, {ch} <-: chm)      
   else {};  
+
+iswfStudents : (map Flow to (seq1 of set of IdPer)) * 
+                                set of Flow * set of IdPer  -> bool
+iswfStudents(fsm, fs, ps) ==
+  -- (dom fsm subset fs) and (allStudents(fsm) subset ps) and
+   forall f in set dom fsm &
+     (((allStudents({f} <-: fsm) inter (dunion elems fsm(f))) = {})  and
+      forall i in set inds fsm(f) & 
+        (forall j in set inds fsm(f) &
+          ((i=j) or (fsm(f)(i) inter fsm(f)(j) = {}))
+        )
+     );                                            
+
+iswfCurriculum : map IdDisc to Discipline * set of Direction -> bool
+iswfCurriculum(idm, ds) ==
+  forall id in set dom idm & (idm(id)).dir in set ds;
 
 iswfChairs : map IdCh to Chair * set of IdPer 
                      * set of Scientific * set of Direction -> bool
