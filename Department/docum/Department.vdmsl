@@ -39,7 +39,7 @@ IdDisc     :: nat;                                  --Номер дисципліни
 Discipline :: Title fl:Flow dir:Direction hours:map Tlean to nat;  --Дисципліна
 Direction   = String;        --Учбовий напрямок: "Programming", "Algorithm", "DataBase"  
 
-Subject    :: IdDisc Tlean;                         --Предмет
+Subject    :: IdDisc t:Tlean;                         --Предмет
 Group      :: Flow num:[nat];                       --Група  
 Executor    = IdCh | IdPer;                         --Виконавець
 Tlean       = <Lec> | <Sem> | <Com> | <Cnt> | <Ind>;--Тип годин
@@ -96,7 +96,7 @@ allManChairs(t, chm) ==
 iswfStudents : (map Flow to (seq1 of set of IdPer)) * 
                                 set of Flow * set of IdPer  -> bool
 iswfStudents(fsm, fs, ps) ==
-  -- (dom fsm subset fs) and (allStudents(fsm) subset ps) and
+   (dom fsm subset fs) and (allStudents(fsm) subset ps) and
    forall f in set dom fsm &
      (((allStudents({f} <-: fsm) inter (dunion elems fsm(f))) = {})  and
       forall i in set inds fsm(f) & 
@@ -108,6 +108,96 @@ iswfStudents(fsm, fs, ps) ==
 iswfCurriculum : map IdDisc to Discipline * set of Direction -> bool
 iswfCurriculum(idm, ds) ==
   forall id in set dom idm & (idm(id)).dir in set ds;
+
+cntLeanExecutor : map Executor to nat -> nat
+cntLeanExecutor(exm) == 
+  if exm = {|->} then 
+    let ex in set dom exm in
+    exm(ex) + cntLeanExecutor({ex}<-:exm)
+  else 0;  
+
+sumList : seq of int -> int
+sumList(il) ==
+  if il = [] then 0 else hd il + sumList(tl il);
+
+cntLeanStudent : Tlean * seq1 of set of IdPer -> nat
+cntLeanStudent(typ, isl) == 
+  cases typ:
+    <Ind> -> sumList([card isl(i) | i in set inds isl]),
+    <Lec> -> 1,
+    others -> len isl
+  end;  
+
+iswfSubject : Subject * map IdDisc to Discipline -> bool
+iswfSubject(mk_Subject(id,t), idm) == 
+  id in set dom idm and t in set dom idm(id).hours;
+
+allSubjects : map IdDisc to Discipline * set of Flow -> set of Subject
+allSubjects(idm, fs) ==
+  dunion { 
+          dunion { {mk_Subject(id,t)|t in set dom idm(id).hours}
+                 | id in set dom idm & idm(id).fl = f} 
+        | f in set fs};
+
+iswfExecutor : Executor *  map IdCh to Chair -> bool
+iswfExecutor(ex,chm) ==
+  if is_IdCh(ex) then ex in set dom chm
+  else ex in set allManChairs(<t>, chm);
+  
+iswfAssignment : map Subject to (map Executor to nat) * 
+                  map IdDisc to Discipline * map IdCh to Chair *
+                        map Flow to (seq1 of set of IdPer) -> bool
+iswfAssignment(asm, idm, chm, fsm) ==
+  allSubjects(idm, dom fsm) = dom asm and
+  forall exm in set rng asm & 
+     (forall ex in set dom exm & iswfExecutor(ex,chm)) and
+  --forall sub in set dom asm & iswfSubject(sub,idm) and
+  forall mk_Subject(id,t) in set dom asm &
+    cntLeanStudent(t,fsm(idm(id).fl)) 
+        = cntLeanExecutor(asm(mk_Subject(id,t)));
+
+addPlanSubject : map Subject to (map IdPer to nat) * Subject * IdPer 
+                                -> map Subject to (map IdPer to nat)
+addPlanSubject(pl, sub, it) ==
+  if sub in set dom pl then
+    if it in set dom pl(sub) then
+      pl ++ {sub |-> pl(sub) ++ {pl(sub)(it) |-> pl(sub)(it) + 1}}
+    else pl ++ {sub |-> pl(sub) munion {it |-> 1}}
+  else pl munion {sub |-> {it |-> 1}};
+
+fmPlanSchedule :  map Place to Studies -> map Subject to (map IdPer to nat)
+fmPlanSchedule(plm) ==
+  if plm <> {|->} then  
+    let pl in set dom plm                in
+    let mk_Studies(sub,-,it) = plm(pl),
+        pls = fmPlanSchedule({pl}<-:plm) in
+    addPlanSubject(pls,sub,it)    
+  else {|->};
+
+isTeacherEx: map Executor to nat -> bool
+isTeacherEx(exm) ==
+ exists ex in set dom exm & is_IdPer(ex);
+ 
+tmPlanAssign : map Subject to (map Executor to nat) ->  
+                                 map Subject to (map IdPer to nat)
+tmPlanAssign(ass) ==
+  {sub |-> {it |-> ass(sub)(it) | it in set dom ass(sub) & is_IdPer(it)}                                
+     | sub in set dom ass &  
+       isTeacherEx(ass(sub)) and (sub.t <> <Cnt>) and (sub.t <> <Ind>) };
+
+iswfSchedule : map Place to Studies * map IdDisc to Discipline *
+               map nat to Troom * map Flow to (seq1 of set of IdPer)    
+                      * map Subject to (map Executor to nat) -> bool
+iswfSchedule(plm,idm,rm,fsm,ass) ==
+  fmPlanSchedule(plm) = tmPlanAssign(ass) and 
+  forall pl in set dom plm & iswfPlace(pl,plm(pl),idm,rm,fsm);
+  
+iswfPlace :  Place * Studies * map IdDisc to Discipline * 
+       map nat to Troom * map Flow to (seq1 of set of IdPer) -> bool
+iswfPlace(mk_Place(r,-,-),mk_Studies(sub,g,-),idm,rm,fsm) ==
+  (r in set dom rm) and
+   let mk_Troom(tr,cnt) = rm(r)    in
+   true;   
 
 iswfChairs : map IdCh to Chair * set of IdPer 
                      * set of Scientific * set of Direction -> bool
