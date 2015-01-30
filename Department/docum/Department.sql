@@ -14,26 +14,11 @@ create table Discipline
 (idDisc integer not null primary key,
  Title varchar(15) not null,
  idFl integer not null,
- idDir integer not null,
  Lecture integer,
  Seminar integer,
  Computer integer,
  Control integer,
  Individ integer
-);
-
-drop table if exists Direction;
-drop table if exists Directions;
-create table Directions
-(idDir integer not null primary key,
- Direction varchar(15) not null
-); 
-
-drop table if exists Scientific;
-drop table if exists Scientifics;
-create table Scientifics
-(idSci integer not null primary key,
- Scientific varchar(15) not null
 );
 
 drop table if exists Person;
@@ -48,8 +33,6 @@ create table Person
 drop table if exists Teacher;
 create table Teacher
 (idPer integer not null primary key,
- idSci integer, 
- idDir integer,
  idCh integer,  
  Post varchar(15) not null,
  ScienceD varchar(15)
@@ -59,7 +42,6 @@ drop table if exists Graduate;
 create table Graduate
 (idPer integer not null primary key,
  idCh integer, 
- idSci integer, 
  YearS smallint not null,
  idLead integer
 ); 
@@ -96,8 +78,8 @@ create table Assignment
  constraint primary key (idDisc, tLean, tExec, idExec)
 );
 
-drop table if exists Schedule;
-create table Schedule
+drop table if exists Studies;
+create table Studies
 (idRoom integer not null,
  tDay char(3) not null,
  Pair smallint not null,
@@ -112,7 +94,7 @@ drop table if exists Printing;
 create table Printing
 (idPrn integer not null primary key,
  Title varchar(15) not null,
- idSci integer,
+ cntAut smallint,
  YearP integer,
  tPrint varchar(10)
 );
