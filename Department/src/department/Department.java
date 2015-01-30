@@ -23,7 +23,6 @@ public class Department {
 				   //System.out.println("...");
 				   System.out.println(cmd.getMsg());
 			   }
-
      	   }
 		   db.disConnect();
 		   System.out.println("Disconnect from Department!");
