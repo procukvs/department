@@ -42,9 +42,10 @@ public class Dialog {
 			if (!token[0].equals("ex"))  
 				switch (token[0].charAt(0)) {
 					case 'f': cm = analysFlow(token); break;
-					case 'l': cm = analysLead(token); break;
+				//	case 'l': cm = analysLead(token); break;
 					case 'e': cm = new CmExit(); break;
 					case 'p': cm = analysPerson(token); break;
+					case 'c': cm = analysChair(token); break;
 					default:  cm = new CmExit(str + "..." + st + ".." + token[0].charAt(0));
 				}
 			else cm = new CmExit(); 
@@ -58,22 +59,22 @@ public class Dialog {
 	}
 	
 	// ls txt ==> mk_AddScientif(txt):ld txt ==> mk_AddDirection(txt):
-	private Command analysLead(String [] token){
-		Command cm;
-		String dir;
-		//System.out.println(token.length);
-        if ((token.length > 2) && (token[0].length()>1)) {
-    		switch (token[0].charAt(1)) {
-				case 's': cm = new CmLead("Scientific",token[1]); break;
-				case 'd': cm = new CmLead("Direction",token[1]); break;
-				case 'v': cm = new CmLead("Show",token[1]); break;
-				default : cm = new CmExit("ls/ld text .. lv d/s");
-    		}    	
-        }
-        else cm = new CmExit("ls/ld text .. lv d/s");
-       // System.out.println(">>> " + cm.toString());
-        return cm;
-	}
+	//private Command analysLead(String [] token){
+	//	Command cm;
+	//    String dir;
+	////System.out.println(token.length);
+    //    if ((token.length > 2) && (token[0].length()>1)) {
+    //		switch (token[0].charAt(1)) {
+	//			case 's': cm = new CmLead("Scientific",token[1]); break;
+	//			case 'd': cm = new CmLead("Direction",token[1]); break;
+	//			case 'v': cm = new CmLead("Show",token[1]); break;
+	//			default : cm = new CmExit("ls/ld text .. lv d/s");
+    //		}    	
+    //    }
+    //    else cm = new CmExit("ls/ld text .. lv d/s");
+    //   // System.out.println(">>> " + cm.toString());
+    //    return cm;
+	//}
 	private Command analysPerson(String [] token){
 		Command cm;
 		String surname, name, telefon, sex;
@@ -164,6 +165,55 @@ public class Dialog {
 			if (c == 'a') cm = new CmFlow(spec,year,term);
 			else if (c == 'e') cm = new CmFlow(id, spec,year,term); 
 			else cm = new CmFlow();
+       	} else cm = new CmExit(err);
+        return cm;
+	}
+	
+	private Command analysChair(String [] token){
+		Command cm;
+		String title;
+		int ic, ih, i;
+		String err = "ca text .. ce ic {field:text} ..  cs ..";
+		boolean good;
+		char c = 's';
+		title = ""; ic = 0; ih = 0;
+		ic = 0; i = 1;
+		good = (token.length > 2) && (token[0].length()>1);
+		if (good){
+			c = token[0].charAt(1);
+			good = ((c == 'a') || (c == 'e') || (c == 'd'));  
+			if (good) {
+				if ((c == 'e') || (c == 'd'))	{
+					i = 2;	
+					good = token[1].matches("[0-9]*");
+					if (good) ic = Integer.parseInt(token[1]); 
+					else err = "c" + c + " ... ic = number .. ";
+			
+	        	}
+				else title = token[1];
+					
+				while ((i < token.length-1) && good && (c == 'e')) {
+					String st = token[i];
+					//System.out.println(".." + i + ".." + st);
+					if (st.startsWith("tit:")) title = st.substring(4);
+					else if (st.startsWith("hea:")) {
+						good = st.substring(4).matches("[0-9]*");
+						if (good) ih = Integer.parseInt(st.substring(4));
+						else err = "ce" + " ci ... hea:number .. ";		
+					}
+					else {good = false; 
+						err = "ce ic ... field = tit/hea ..";
+					}
+					i++;
+				}
+			}
+		}
+		if (c == 's') good = true;
+		if (good) {
+			if (c == 'a') cm = new CmChair(title);
+			else if (c == 'e') cm = new CmChair(ic, title, ih); 
+			else if (c == 'd') cm = new CmChair(ic); 
+			else cm = new CmChair();  // c=='s'
        	} else cm = new CmExit(err);
         return cm;
 	}

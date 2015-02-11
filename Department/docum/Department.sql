@@ -64,18 +64,17 @@ create table Chair
 drop table if exists Rooms;
 create table Rooms
 (idRoom integer not null primary key,
- tRoom char(3),
+ isComp boolean,
  cntSt integer not null
 );
 
 drop table if exists Assignment;
 create table Assignment
 (idDisc integer not null,
- tExec char(1) not null,
- idExec integer not null,
+ idPer integer not null,
  tLean char(3) not null,
  cntLearner smallint,
- constraint primary key (idDisc, tLean, tExec, idExec)
+ constraint primary key (idDisc, tLean, idPer)
 );
 
 drop table if exists Studies;
@@ -83,10 +82,9 @@ create table Studies
 (idRoom integer not null,
  tDay char(3) not null,
  Pair smallint not null,
- idDisc integer not null,
+ idAss integer not null,
+ idFl integer not null,
  GroupS smallint,
- idPer integer,
- tLean char(3) not null,
  constraint primary key (idRoom, tDay, Pair)
 ); 
 

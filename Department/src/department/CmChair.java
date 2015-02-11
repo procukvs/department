@@ -5,22 +5,28 @@ public class CmChair extends Command {
 	private String title, type;
 	public CmChair(String title) {
 		this.type = "a"; this.title = title;
+		this.ih =0;
 	}
 	public CmChair(int ic, String title, int ih) {
 		this.type = "e"; this.title = title;
-		this.ih = ih;
+		this.ic = ic; this.ih = ih;
 	}
 	public CmChair(int ic) {
 		this.type = "d"; this.ic = ic;
 	}
+	public CmChair() {
+		this.type = "s"; 
+	}
 	public String toString(){
 		String str;
 		str = "c"+type;
-		if (type != "a") str = str + " idch:" + ic;
-		if (type != "d") {
-	       if (!title.equals("")) str = str + " title:" + title; 
-	       if (!(ih == 0)) str = str + " idLead:" + ih; 
-	    }
+		if (type != "s"){
+			if (type != "a") str = str + " idch:" + ic;
+			if (type != "d") {
+				if (!title.equals(""))	str = str + " title:" + title; 
+				if (!(ih == 0)) str = str + " idLead:" + ih; 
+			}
+		}	
 		return str;
 	}
 	public boolean iswf(DataBase db){
@@ -56,7 +62,7 @@ public class CmChair extends Command {
 			          if (id >= 0) {
 			           	  sql = "insert into Chair values(" + id + fmSql1() + ")";
 			        	  System.out.println(sql);
-			        	  if (db.execSQL(sql)) this.setMsg("Add new person: " + sql);
+			        	  if (db.execSQL(sql)) this.setMsg("Add new chair: " + sql);
 			          }	  
 				      break;
 			case 'e': sql = "update Chair set " + fmSql2() + " where idChr = " + this.ic ;
@@ -71,7 +77,7 @@ public class CmChair extends Command {
 			          break;
 			default:  this.setMsg("Command p" + type +" not correct!");
 	    }  
-	}
+	} 
 	private String fmSql1(){
 		String str = "";
 		if (!title.equals("")) str = str + ",'" + title + "'";  else str = str + ",null";
