@@ -65,7 +65,7 @@ public class CmChair extends Command {
 			        	  if (db.execSQL(sql)) this.setMsg("Add new chair: " + sql);
 			          }	  
 				      break;
-			case 'e': sql = "update Chair set " + fmSql2() + " where idChr = " + this.ic ;
+			case 'e': sql = "update Chair set " + fmSql2() + " where idCh = " + this.ic ;
       	              System.out.println(sql);
       	              if (db.execSQL(sql)) this.setMsg("Edit chair with number " + this.ic + " : " + sql);
 				      break;

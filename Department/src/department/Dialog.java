@@ -17,7 +17,7 @@ public class Dialog {
 		   	 do {
 		   		 str = stdin.readLine();
 		   		 i = i+1;
-		   		 cmd = analysCommand();
+		   		 cmd = analysCommand(str);
 		   		 err = cmd.getMsg();
 		   		 if (noGood = !err.equals(""))
 		   			 System.out.println("Not correct commant: " + err);
@@ -31,7 +31,7 @@ public class Dialog {
 		return cmd; 
 	}
 	
-	private Command analysCommand(){
+	private Command analysCommand(String str){
 		StringTokenizer cmst = new StringTokenizer(str);
 		String [] token;
 		int st= cmst.countTokens() ;

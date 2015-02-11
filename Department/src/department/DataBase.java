@@ -14,6 +14,7 @@ public class DataBase {
 	private ResultSet rs;
    //	private Substitution sub;
 	private String nameDB ;
+	protected String setDriver="";
 	DataBase(){ 
 		try
 	    {
@@ -22,6 +23,7 @@ public class DataBase {
 		catch(Exception ex)
         {
             //ex.printStackTrace();
+			setDriver = ex.getMessage();
             System.out.println("ERROR: Could not form DataBase .");
 			System.out.println(">>> " + ex.getMessage());
         } 	
